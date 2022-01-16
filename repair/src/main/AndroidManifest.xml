@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mqp.repair">
+    package="com.zhuli.repair">
 
+    <!--网络权限-->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--文件读写权限-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application>
+
+        <!-- Url访问权限，兼容android7.0 Uri 地址共享访问 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.toprand.app.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+
+        <receiver
+            android:name=".receiver.UpdateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <!--监听更新广播-->
+                <action android:name="com.zhuli.repair.receiver.UpdateReceiver" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+    </application>
 
 </manifest>

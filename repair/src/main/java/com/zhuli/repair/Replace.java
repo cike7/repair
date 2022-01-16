@@ -1,4 +1,4 @@
-package com.mqp.repair;
+package com.zhuli.repair;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

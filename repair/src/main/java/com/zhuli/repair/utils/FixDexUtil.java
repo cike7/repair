@@ -1,9 +1,11 @@
-package com.mqp.repair;
+package com.zhuli.repair.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.TextUtils;
 import android.widget.Toast;
+
+import com.zhuli.repair.LogInfo;
+import com.zhuli.repair.RepairUtil;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -18,31 +20,37 @@ import dalvik.system.PathClassLoader;
  */
 public class FixDexUtil {
 
-    //dex下载路径
-    private static String dexPath;
+    static {
+        System.loadLibrary("native-lib");
+    }
 
     public static final String DEX_SUFFIX = ".dex";
     public static final String APK_SUFFIX = ".apk";
     public static final String JAR_SUFFIX = ".jar";
     public static final String ZIP_SUFFIX = ".zip";
 
-    //dex解压路径文件名
-    public static final String OPTIMIZE_DEX_DIR = "dex";
+    //解压路径文件名
+    public static final String OPTIMIZE_DEX = "dex";
+    public static final String OPTIMIZE_RES = "res";
+    public static final String OPTIMIZE_APK = "apk";
 
+    public static String getDownLoadPath(Context context, int type) {
+        //下载路径
+        String dexPath;
+        if (type == RepairUtil.UPDATE_TYPE_REPAIR) {
+            dexPath = context.getExternalFilesDir(OPTIMIZE_DEX).getAbsolutePath();
 
-    /**
-     * 最开始要初始化
-     *
-     * @param context
-     */
-    public static void init(Context context) {
-        dexPath = context.getExternalFilesDir(OPTIMIZE_DEX_DIR).getAbsolutePath();
-    }
+        } else if (type == RepairUtil.UPDATE_TYPE_RES) {
+            dexPath = context.getExternalFilesDir(OPTIMIZE_RES).getAbsolutePath();
 
-    public static String getDexPath() {
-        if (TextUtils.isEmpty(dexPath)) {
-            throw new Error("未调用 'init()' 初始化函数");
+        } else if (type == RepairUtil.UPDATE_TYPE_APK) {
+            dexPath = context.getExternalFilesDir(OPTIMIZE_APK).getAbsolutePath();
+
+        } else {
+            dexPath = context.getExternalFilesDir("").getAbsolutePath();
+
         }
+
         return dexPath;
     }
 
@@ -55,11 +63,11 @@ public class FixDexUtil {
         // 遍历所有的修复dex , 因为可能是多个dex修复包
         File[] listFiles = fileDir.listFiles();
         if (listFiles != null) {
-            System.out.println("TAG==目录下文件数量=" + listFiles.length);
+            LogInfo.e("TAG==目录下文件数量=" + listFiles.length);
             //需要修复的dex文件
             HashSet<File> loadedDex = new HashSet<>();
             for (File file : listFiles) {
-                System.out.println("TAG==文件名称=" + file.getName());
+                LogInfo.e("TAG==文件名称=" + file.getName());
                 if (file.getName().startsWith("classes") &&
                         (file.getName().endsWith(DEX_SUFFIX)
                                 || file.getName().endsWith(APK_SUFFIX)
@@ -84,8 +92,8 @@ public class FixDexUtil {
         if (loadedDex == null || loadedDex.size() <= 0)
             return;
 
-        String optimizeDir = context.getFilesDir().getAbsolutePath() + File.separator + OPTIMIZE_DEX_DIR;
-        System.out.println("TAG==补丁包解压路径=" + optimizeDir);
+        String optimizeDir = context.getFilesDir().getAbsolutePath() + File.separator + OPTIMIZE_DEX;
+        LogInfo.e("TAG==补丁包解压路径=" + optimizeDir);
         // data/data/包名/files/optimize_dex（这个必须是自己程序下的目录）
         File fopt = new File(optimizeDir);
         if (!fopt.exists()) {
@@ -121,7 +129,7 @@ public class FixDexUtil {
                 // 一定要重新获取，不要用pathPathList，会报错
                 setField(pathList, pathList.getClass(), "dexElements", dexElements);
             }
-            System.out.println("TAG==修复完成=");
+            LogInfo.e("TAG==修复完成=");
             ((Activity) context).finish();
             Toast.makeText(context, "修复完成", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {

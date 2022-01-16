@@ -1,6 +1,9 @@
-package com.mqp.repair;
+package com.zhuli.repair.utils;
 
 import android.content.Context;
+
+import com.zhuli.repair.LogInfo;
+import com.zhuli.repair.Replace;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +45,7 @@ public class FixDexManager {
      */
     public void loadDex(File file) {
         try {
-            System.out.println("TAG==开始修复=" + file.getAbsolutePath());
+            LogInfo.e("TAG==开始修复=" + file.getAbsolutePath());
             //加载dex文件（资源路径，解压路径，标识符（私有的））
             DexFile dexFile = DexFile.loadDex(file.getAbsolutePath(), new File(context.getCacheDir(), "opt").getAbsolutePath(), Context.MODE_PRIVATE);
             //当前的dex里面的class 类名集合
@@ -57,7 +60,7 @@ public class FixDexManager {
                     fixClazz(realClazz);
                 }
             }
-            System.out.println("TAG==修复完成=");
+            LogInfo.e("TAG==修复完成=");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,7 +88,7 @@ public class FixDexManager {
             String clazzName = replace.clazz();
             //得到方法名
             String methodName = replace.method();
-            System.out.println("TAG==有bug的类=" + clazzName + "有bug的方法=" + methodName);
+            LogInfo.e("TAG==有bug的类=" + clazzName + "有bug的方法=" + methodName);
             try {
                 //反射得到本地的有bug的方法的类
                 Class wrongClazz = Class.forName(clazzName);
@@ -101,6 +104,5 @@ public class FixDexManager {
     }
 
     public native static void replace(Method wrongMethod, Method rightMethod);
-
 
 }

@@ -11,4 +11,4 @@
 /app
 *.jks
 # Project exclude paths
-/repair/.cxx/
+/app

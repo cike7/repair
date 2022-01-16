@@ -1,6 +1,4 @@
-package com.mqp.repair;
-
-import java.io.File;
+package com.zhuli.repair.utils;
 
 /**
  * @Description
@@ -12,7 +10,7 @@ public interface OnDownloadListener {
     /**
      * 下载成功之后的文件
      */
-    void onDownloadSuccess(File file);
+    void onDownloadSuccess(String filePath);
 
     /**
      * 下载进度
@@ -22,7 +20,6 @@ public interface OnDownloadListener {
     /**
      * 下载异常信息
      */
-
     void onDownloadFailed(Exception e);
 
 }

@@ -3,18 +3,17 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
+    
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
 
         externalNativeBuild {
             cmake {
@@ -24,6 +23,7 @@ android {
     }
 
     buildTypes {
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -46,4 +46,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     //okHttp框架
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
+
 }
