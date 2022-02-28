@@ -16,7 +16,7 @@ import dalvik.system.DexFile;
 /**
  * @author bthvi
  * @time 2019/7/20
- * @desc 不用启动APP实现热修复
+ * @desc APP实现热修复（底层替换app dex文件）
  */
 public class FixDexManager {
 
@@ -32,9 +32,12 @@ public class FixDexManager {
      * @param loadedDex
      */
     public void doDexInject(HashSet<File> loadedDex) {
+        LogInfo.e("目录下文件数量=" + loadedDex.size());
         for (File file : loadedDex) {
+            LogInfo.e("文件名称=" + file.getName());
             loadDex(file);
         }
+        LogInfo.e("修复完成");
     }
 
 
@@ -43,11 +46,13 @@ public class FixDexManager {
      *
      * @param file
      */
-    public void loadDex(File file) {
+    private void loadDex(File file) {
         try {
-            LogInfo.e("TAG==开始修复=" + file.getAbsolutePath());
+            //解压dex文件路径
+            String outFilePath = new File(context.getCacheDir(), "opt").getAbsolutePath();
+            LogInfo.e("解压dex文件路径=" +outFilePath);
             //加载dex文件（资源路径，解压路径，标识符（私有的））
-            DexFile dexFile = DexFile.loadDex(file.getAbsolutePath(), new File(context.getCacheDir(), "opt").getAbsolutePath(), Context.MODE_PRIVATE);
+            DexFile dexFile = DexFile.loadDex(file.getAbsolutePath(), outFilePath, Context.MODE_PRIVATE);
             //当前的dex里面的class 类名集合
             Enumeration<String> entry = dexFile.entries();
             //加载当前Enumeration的所有类
@@ -60,8 +65,6 @@ public class FixDexManager {
                     fixClazz(realClazz);
                 }
             }
-            LogInfo.e("TAG==修复完成=");
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,7 +91,7 @@ public class FixDexManager {
             String clazzName = replace.clazz();
             //得到方法名
             String methodName = replace.method();
-            LogInfo.e("TAG==有bug的类=" + clazzName + "有bug的方法=" + methodName);
+            LogInfo.e("有bug的类=" + clazzName + "有bug的方法=" + methodName);
             try {
                 //反射得到本地的有bug的方法的类
                 Class wrongClazz = Class.forName(clazzName);
@@ -103,6 +106,12 @@ public class FixDexManager {
 
     }
 
+    /**
+     * 实现C++底层不重启app替换资源 （在src/main/cpp/native-lib.cpp需要确认路径位置是否正确）
+     *
+     * @param wrongMethod
+     * @param rightMethod
+     */
     public native static void replace(Method wrongMethod, Method rightMethod);
 
 }

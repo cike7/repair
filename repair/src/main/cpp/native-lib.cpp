@@ -4,8 +4,16 @@
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_bthvi_FixDexManager_replace(JNIEnv *env, jclass type,jobject wrongMethod,jobject rightMethod) {
 
+/**
+ * 实现C++底层不重启app替换资源
+ * @param env
+ * @param type
+ * @param wrongMethod
+ * @param rightMethod
+ */
+Java_com_zhuli_repair_utils_FixDexManager_replace(JNIEnv *env, jclass type, jobject wrongMethod,
+                                                  jobject rightMethod) {
     //ArtMethod存在于Android 系统源码中，只需要导入我们需要的部分（art_method.h）
     art::mirror::ArtMethod *wrong = (art::mirror::ArtMethod *) env->FromReflectedMethod(
             wrongMethod);

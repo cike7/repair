@@ -34,6 +34,13 @@ public class FixDexUtil {
     public static final String OPTIMIZE_RES = "res";
     public static final String OPTIMIZE_APK = "apk";
 
+    /**
+     * 获取下载路径
+     *
+     * @param context
+     * @param type
+     * @return
+     */
     public static String getDownLoadPath(Context context, int type) {
         //下载路径
         String dexPath;
@@ -63,16 +70,15 @@ public class FixDexUtil {
         // 遍历所有的修复dex , 因为可能是多个dex修复包
         File[] listFiles = fileDir.listFiles();
         if (listFiles != null) {
-            LogInfo.e("TAG==目录下文件数量=" + listFiles.length);
+            LogInfo.e("目录下文件数量=" + listFiles.length);
             //需要修复的dex文件
             HashSet<File> loadedDex = new HashSet<>();
             for (File file : listFiles) {
-                LogInfo.e("TAG==文件名称=" + file.getName());
-                if (file.getName().startsWith("classes") &&
-                        (file.getName().endsWith(DEX_SUFFIX)
-                                || file.getName().endsWith(APK_SUFFIX)
-                                || file.getName().endsWith(JAR_SUFFIX)
-                                || file.getName().endsWith(ZIP_SUFFIX))) {
+                LogInfo.e("文件名称=" + file.getName());
+                if (file.getName().startsWith("classes") && (file.getName().endsWith(DEX_SUFFIX)
+                        || file.getName().endsWith(APK_SUFFIX)
+                        || file.getName().endsWith(JAR_SUFFIX)
+                        || file.getName().endsWith(ZIP_SUFFIX))) {
                     // 存入集合
                     loadedDex.add(file);
                 }
@@ -93,12 +99,10 @@ public class FixDexUtil {
             return;
 
         String optimizeDir = context.getFilesDir().getAbsolutePath() + File.separator + OPTIMIZE_DEX;
-        LogInfo.e("TAG==补丁包解压路径=" + optimizeDir);
+        LogInfo.e("补丁包解压路径=" + optimizeDir);
         // data/data/包名/files/optimize_dex（这个必须是自己程序下的目录）
         File fopt = new File(optimizeDir);
-        if (!fopt.exists()) {
-            fopt.mkdirs();
-        }
+        boolean outPath = fopt.exists() ? fopt.delete() : fopt.mkdirs();
         try {
             // 1.加载应用程序dex的Loader
             PathClassLoader pathLoader = (PathClassLoader) context.getClassLoader();
@@ -129,7 +133,7 @@ public class FixDexUtil {
                 // 一定要重新获取，不要用pathPathList，会报错
                 setField(pathList, pathList.getClass(), "dexElements", dexElements);
             }
-            LogInfo.e("TAG==修复完成=");
+            LogInfo.e("修复完成=");
             ((Activity) context).finish();
             Toast.makeText(context, "修复完成", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {

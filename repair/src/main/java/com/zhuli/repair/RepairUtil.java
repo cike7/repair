@@ -6,8 +6,11 @@ import android.content.Intent;
 
 import com.zhuli.repair.json.FromJsonUtils;
 import com.zhuli.repair.json.RequestResult;
-import com.zhuli.repair.network.NetworkCallback;
 import com.zhuli.repair.network.NetworkManage;
+
+import java.io.IOException;
+
+import okhttp3.Response;
 
 
 /**
@@ -34,13 +37,18 @@ public class RepairUtil {
      *
      * @param context
      */
-    public static void pollingUpdate(Context context) {
-        String url = "http://192.168.2.77:8088/api/app/version";
-        NetworkManage.send(url, new NetworkCallback<String>() {
-            @Override
-            public void onCallback(String data) {
-                RequestResult<VersionModel> result = FromJsonUtils.fromJson(data, VersionModel.class);
-                RepairUtil.sendBroadcastUpdate(context, result.getData());
+    public static void pollingUpdate(Context context, String url) {
+        NetworkManage.send(url, response -> {
+            if (response == null) return;
+            if (response instanceof Response) {
+                try {
+                    String data = ((Response) response).body().string();
+                    if (data == null || data.equals("") || data.length() < 1) return;
+                    RequestResult<VersionModel> result = FromJsonUtils.fromJson(data, VersionModel.class);
+                    RepairUtil.sendBroadcastUpdate(context, result.getData());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

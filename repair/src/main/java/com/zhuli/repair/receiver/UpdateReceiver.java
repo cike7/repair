@@ -34,6 +34,9 @@ public class UpdateReceiver extends BroadcastReceiver {
                 DownloadUtil.downFile(context,
                         intent.getIntExtra(RepairUtil.updateType, -1),
                         intent.getStringExtra(RepairUtil.downloadUrl));
+
+            }else {
+                LogInfo.e("本地版本为最新版本，不需要更新：" + intent.getStringExtra(RepairUtil.updateVersion));
             }
 
         }

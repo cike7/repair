@@ -65,7 +65,7 @@ public class NetworkManage {
 
 
     /**
-     * GET
+     * GET 获取版本号
      *
      * @param url
      * @param callback
@@ -98,7 +98,9 @@ public class NetworkManage {
      * @param callback
      */
     private static void sendCall(Call call, NetworkCallback callback) {
+
         call.enqueue(new Callback() {
+
             @Override
             public void onFailure(Call call, IOException e) {
                 LogInfo.e("请求失败," + e.getMessage());
@@ -116,15 +118,11 @@ public class NetworkManage {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 if (response.code() == 200) {
-                    if (callback != null) {
+                    if (callback != null || response.body() != null) {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                try {
-                                    callback.onCallback(response.body().string());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                                callback.onCallback(response);
                             }
                         });
                     }

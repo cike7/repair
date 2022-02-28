@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.zhuli.repair.LogInfo;
 import com.zhuli.repair.RepairUtil;
-import com.zhuli.repair.network.NetworkCallback;
 import com.zhuli.repair.network.NetworkManage;
 
 import java.io.File;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import okhttp3.Response;
@@ -51,13 +51,14 @@ public class DownloadUtil {
 
                 }
 
-//                HashSet<File> loadedDex = FixDexUtil.isGoingToFix(new File(FixDexUtil.getDexPath()));
-//
-//                if (loadedDex != null) {
+                HashSet<File> loadedDex = FixDexUtil.isGoingToFix(new File(FixDexUtil.getDownLoadPath(context, type)));
+                if (loadedDex != null) {
+                    //需要重启修复
+                    FixDexUtil.doDexInject(context, loadedDex);
+                    //不需要重启修复
 //                    FixDexManager manager = new FixDexManager(context);
 //                    manager.doDexInject(loadedDex);
-//                    FixDexUtil.doDexInject(context, loadedDex);
-//                }
+                }
 
             }
 
@@ -86,7 +87,7 @@ public class DownloadUtil {
         final String fileName;
 
         if (type == RepairUtil.UPDATE_TYPE_REPAIR) {
-            fileName = "classes.dex";
+            fileName = "classes1.dex";
 
         } else if (type == RepairUtil.UPDATE_TYPE_RES) {
             fileName = "res.zip";
@@ -130,26 +131,34 @@ public class DownloadUtil {
      * @param response
      */
     private void writeFile(File file, Response response) {
-        OutputStream outputStream = null;
-        InputStream inputStream = response.body().byteStream();
-        try {
-            outputStream = new FileOutputStream(file);
-            int len;
-            byte[] buffer = new byte[1024];
-            while ((len = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, len);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OutputStream outputStream = null;
+                InputStream inputStream = response.body().byteStream();
+                try {
+                    outputStream = new FileOutputStream(file);
+                    int len;
+                    byte[] buffer = new byte[1024];
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, len);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (outputStream != null)
+                            outputStream.close();
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                inputStream.close();
-                if (outputStream != null)
-                    outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        }).start();
+
+
     }
 
     private OnDownloadListener downloadListener;
