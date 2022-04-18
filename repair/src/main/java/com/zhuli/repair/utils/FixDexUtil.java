@@ -133,9 +133,8 @@ public class FixDexUtil {
                 // 一定要重新获取，不要用pathPathList，会报错
                 setField(pathList, pathList.getClass(), "dexElements", dexElements);
             }
-            LogInfo.e("修复完成=");
+            LogInfo.e("修复完成，重启应用！");
             ((Activity) context).finish();
-            Toast.makeText(context, "修复完成", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
         }

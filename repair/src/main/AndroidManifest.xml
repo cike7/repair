@@ -22,7 +22,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-
         <receiver
             android:name=".receiver.UpdateReceiver"
             android:enabled="true"
